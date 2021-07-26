@@ -51,6 +51,10 @@ rk = RerankerForInference.from_pretrained("Luyu/bert-base-mdoc-bm25")  # load ch
 inputs = rk.tokenize('weather in new york', 'it is cold today in new york', return_tensors='pt')
 score = rk(inputs).logits
 ``` 
+
+* Eu não entendi a task sendo executada aqui. A primeira frase é a query?
+* Estudar essa classe pra entender o que o construtor faz
+
 ### Training
 For training, you will need a model, a dataset and a trainer. Say we have parsed arguments into
  `model_args`, `data_args` and `training_args` with `reranker.arguments`. First, 

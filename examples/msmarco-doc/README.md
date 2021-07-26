@@ -4,9 +4,20 @@ This example walks through reranker LCE training and inference on MS MARCO docum
 After downloading the data, you can also skip the steps train data building and model training by using a trained model checkpoint uploded to Hugging Face model hub. See Inference sectoin for details.
 
 ## Preparing Data
-Download HDCT train rankings and dev file `hdct-marco-train.zip`, `dev.d100.tsv` from LTI server using this [link](http://boston.lti.cs.cmu.edu/appendices/TheWebConf2020-Zhuyun-Dai/rankings/) and unzip the latter.
 
-Download the MSMARCO document ranking collection files `msmarco-doctrain-qrels.tsv.gz`, `msmarco-doctrain-queries.tsv`, `msmarco-docs.tsv` from the [official repo](https://github.com/microsoft/MSMARCO-Document-Ranking). 
+
+# ?===========? pq hdct e não bm25?
+
+## ======= downloads feitos
+Download 
+* HDCT train rankings and 
+* dev file `hdct-marco-train.zip`, 
+* `dev.d100.tsv` from LTI server using this [link](http://boston.lti.cs.cmu.edu/appendices/TheWebConf2020-Zhuyun-Dai/rankings/) and unzip the latter.
+
+Download the MSMARCO document ranking collection files 
+* `msmarco-doctrain-qrels.tsv.gz`, 
+* `msmarco-doctrain-queries.tsv`, 
+* `msmarco-docs.tsv` from the [official repo](https://github.com/microsoft/MSMARCO-Document-Ranking). 
 Decompress the latter two.
 
 ## Building Localized Training Data from Target Retriever top Ranking
@@ -17,21 +28,29 @@ qid  pid2  2
 ...
 ```
 Run the script with following command,
+# ======== Estou nesse passo aqui ========
+* Tirei o loop e to tentando fazer rodar em apenas 1 txt
++ Acabou o espaço do cache. E tentei no drive
+* Lá eu descobri que eu posso alterar o local da cache e decidi tentar de novo aqui
+* Tentando de no vo em ambos os lis pra reproduzir o erro
+* Proxima tarefa: 
+
+
 ```
 mkdir -p {directory to store generated json training file}
 for i in $(seq -f "%03g" 0 183)
 do
-python helpers/build_train_from_ranking.py \
+python helpers/build_train_from_ranking.py \ 
     --tokenizer_name bert-base-uncased \
-    --rank_file {directory of unzipped hdct-marco-train}/${i}.txt \
-    --json_dir {directory to store generated json training file} \
+    --rank_file 	data/hdct-marco-train\${i}.txt \
+    --json_dir data/training_file \
     --n_sample 10 \
     --sample_from_top 100 \
     --random \
     --truncate 512 \
-    --qrel {path to msmarco-doctrain-qrels.tsv.gz} \
-    --query_collection {path to msmarco-doctrain-queries.tsv} \
-    --doc_collection {path to msmarco-docs.tsv}
+    --qrel data/msmarco-doctrain-qrels.tsv.gz \
+    --query_collection data/msmarco-doctrain-queries.tsv \
+    --doc_collection data/msmarco-docs.tsv
 done
 ```
 

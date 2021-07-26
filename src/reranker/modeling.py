@@ -8,8 +8,7 @@ from typing import Optional
 import torch
 import torch.functional as F
 import copy
-from transformers import AutoModelForSequenceClassification, AutoTokenizer,\
-    PreTrainedModel, PreTrainedTokenizer
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, PreTrainedModel, PreTrainedTokenizer
 from transformers.modeling_outputs import SequenceClassifierOutput, BaseModelOutputWithPooling
 from torch import nn
 import torch.distributed as dist
@@ -22,8 +21,8 @@ logger = logging.getLogger(__name__)
 
 
 class Reranker(nn.Module):
-    def __init__(self, hf_model: PreTrainedModel, model_args: ModelArguments, data_args: DataArguments,
-                 train_args: TrainingArguments):
+    # def __init__(self, hf_model: PreTrainedModel, model_args: ModelArguments, data_args: DataArguments, train_args: TrainingArguments):
+    def __init__(self, hf_model, model_args, data_args, train_args):
         super().__init__()
         self.hf_model = hf_model
         self.model_args = model_args
