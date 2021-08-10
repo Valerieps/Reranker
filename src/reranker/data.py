@@ -24,15 +24,11 @@ class GroupedTrainDataset(Dataset):
     def __init__(
             self,
             args: DataArguments,
-            path_to_tsv: Union[List[str], str],
+            path_to_tsv: Union[List[str], str], # Unio significa que pode ser qq uma das opções
             tokenizer: PreTrainedTokenizer,
             train_args: RerankerTrainingArguments = None,
     ):
-        self.nlp_dataset = datasets.load_dataset(
-            'json',
-            data_files=path_to_tsv,
-            ignore_verifications=False,
-            features=datasets.Features({
+        features = {
                 'qry': {
                     'qid': datasets.Value('string'),
                     'query': [datasets.Value('int32')],
@@ -44,8 +40,15 @@ class GroupedTrainDataset(Dataset):
                 'neg': [{
                     'pid': datasets.Value('string'),
                     'passage': [datasets.Value('int32')],
-                }]}
-            )
+                }]
+        }
+
+        self.nlp_dataset = datasets.load_dataset(
+            'json',
+            data_files=path_to_tsv,
+            ignore_verifications=False,
+            # esse campo explica o formato do json para a HF
+            features=datasets.Features(features)
         )['train']
 
         self.tok = tokenizer

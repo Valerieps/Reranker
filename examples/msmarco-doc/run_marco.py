@@ -22,6 +22,28 @@ from transformers import (
 logger = logging.getLogger(__name__)
 
 
+"""
+--nproc_per_node 4 examples/msmarco-doc/run_marco.py \
+--output_dir checkpoints \
+--model_name_or_path  bert-base-uncased \
+--do_train \
+--save_steps 2000 \
+--train_dir data/mini-data/ \
+--max_len 512 \
+--fp16 \
+--per_device_train_batch_size 1 \
+--train_group_size 8 \
+--gradient_accumulation_steps 1 \
+--per_device_eval_batch_size 64 \
+--warmup_ratio 0.1 \
+--weight_decay 0.01 \
+--learning_rate 1e-5 \
+--num_train_epochs 2 \
+--overwrite_output_dir \
+--dataloader_num_workers 8 \
+"""
+
+
 def main():
     parser = HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
@@ -29,41 +51,25 @@ def main():
     data_args: DataArguments
     training_args: TrainingArguments
 
-    if (
-            os.path.exists(training_args.output_dir)
-            and os.listdir(training_args.output_dir)
-            and training_args.do_train
-            and not training_args.overwrite_output_dir
-    ):
+    if (os.path.exists(training_args.output_dir)
+        and os.listdir(training_args.output_dir)
+        and training_args.do_train
+        and not training_args.overwrite_output_dir):
         raise ValueError(
             f"Output directory ({training_args.output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome."
         )
 
     # Setup logging
-    logging.basicConfig(
-        format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
-        datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO if training_args.local_rank in [-1, 0] else logging.WARN,
-    )
-    logger.warning(
-        "Process rank: %s, device: %s, n_gpu: %s, distributed training: %s, 16-bits training: %s",
-        training_args.local_rank,
-        training_args.device,
-        training_args.n_gpu,
-        bool(training_args.local_rank != -1),
-        training_args.fp16,
-    )
-    logger.info("Training/evaluation parameters %s", training_args)
-    logger.info("Model parameters %s", model_args)
-    logger.info("Data parameters %s", data_args)
+    setup_logging(data_args, model_args, training_args)
 
     # Set seed
     set_seed(training_args.seed)
 
+    # 1? Não seria 2?
     num_labels = 1
 
     config = AutoConfig.from_pretrained(
-        model_args.config_name if model_args.config_name else model_args.model_name_or_path,
+        model_args.config_name if model_args.config_name else model_args.model_name_or_path, # bert-base-uncased
         num_labels=num_labels,
         cache_dir=model_args.cache_dir,
     )
@@ -150,6 +156,25 @@ def main():
             with open(data_args.rank_score_path, "w") as writer:
                 for qid, pid, score in zip(pred_qids, pred_pids, pred_scores):
                     writer.write(f'{qid}\t{pid}\t{score}\n')
+
+
+def setup_logging(data_args, model_args, training_args):
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
+        datefmt="%m/%d/%Y %H:%M:%S",
+        level=logging.INFO if training_args.local_rank in [-1, 0] else logging.WARNING,
+    )
+    logger.warning(
+        "Process rank: %s, device: %s, n_gpu: %s, distributed training: %s, 16-bits training: %s",
+        training_args.local_rank,
+        training_args.device,
+        training_args.n_gpu,
+        bool(training_args.local_rank != -1),
+        training_args.fp16,
+    )
+    logger.info("Training/evaluation parameters %s", training_args)
+    logger.info("Model parameters %s", model_args)
+    logger.info("Data parameters %s", data_args)
 
 
 def _mp_fn(index):

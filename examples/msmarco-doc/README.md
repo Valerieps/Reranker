@@ -33,6 +33,7 @@ Run the script with following command,
 + Acabou o espaço do cache. E tentei no drive
 * Lá eu descobri que eu posso alterar o local da cache e decidi tentar de novo aqui
 * Tentando de no vo em ambos os lis pra reproduzir o erro
+* Descobrir o que essa etapa faz
 * Proxima tarefa: 
 
 
