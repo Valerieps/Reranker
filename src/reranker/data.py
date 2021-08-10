@@ -24,31 +24,28 @@ class GroupedTrainDataset(Dataset):
     def __init__(
             self,
             args: DataArguments,
-            path_to_tsv: Union[List[str], str], # Unio significa que pode ser qq uma das opções
+            path_to_tsv: Union[List[str], str],
             tokenizer: PreTrainedTokenizer,
             train_args: RerankerTrainingArguments = None,
     ):
-        features = {
-                'qry': {
-                    'qid': datasets.Value('string'),
-                    'query': [datasets.Value('int32')],
-                },
-                'pos': [{
-                    'pid': datasets.Value('string'),
-                    'passage': [datasets.Value('int32')],
-                }],
-                'neg': [{
-                    'pid': datasets.Value('string'),
-                    'passage': [datasets.Value('int32')],
-                }]
-        }
-
         self.nlp_dataset = datasets.load_dataset(
             'json',
             data_files=path_to_tsv,
             ignore_verifications=False,
-            # esse campo explica o formato do json para a HF
-            features=datasets.Features(features)
+            # features=datasets.Features({
+            #     'qry': {
+            #         'qid': datasets.Value('string'),
+            #         'query': [datasets.Value('int32')],
+            #     },
+            #     'pos': [{
+            #         'pid': datasets.Value('string'),
+            #         'passage': [datasets.Value('int32')],
+            #     }],
+            #     'neg': [{
+            #         'pid': datasets.Value('string'),
+            #         'passage': [datasets.Value('int32')],
+            #     }]}
+            # )
         )['train']
 
         self.tok = tokenizer

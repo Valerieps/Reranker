@@ -19,7 +19,7 @@ from transformers import (
     set_seed,
 )
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
 
 """
@@ -45,6 +45,7 @@ logger = logging.getLogger(__name__)
 
 
 def main():
+    print("\n\nAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAa")
     parser = HfArgumentParser((ModelArguments, DataArguments, TrainingArguments))
     model_args, data_args, training_args = parser.parse_args_into_dataclasses()
     model_args: ModelArguments
@@ -52,15 +53,16 @@ def main():
     training_args: TrainingArguments
 
     if (os.path.exists(training_args.output_dir)
-        and os.listdir(training_args.output_dir)
-        and training_args.do_train
-        and not training_args.overwrite_output_dir):
+            and os.listdir(training_args.output_dir)
+            and training_args.do_train
+            and not training_args.overwrite_output_dir):
         raise ValueError(
             f"Output directory ({training_args.output_dir}) already exists and is not empty. Use --overwrite_output_dir to overcome."
         )
 
     # Setup logging
-    setup_logging(data_args, model_args, training_args)
+    # setup_logging(data_args, model_args, training_args)
+    # print()
 
     # Set seed
     set_seed(training_args.seed)
@@ -68,8 +70,9 @@ def main():
     # 1? Não seria 2?
     num_labels = 1
 
+    print("\n=========== CONFIGURANDO AS COISAS ===========")
     config = AutoConfig.from_pretrained(
-        model_args.config_name if model_args.config_name else model_args.model_name_or_path, # bert-base-uncased
+        model_args.config_name if model_args.config_name else model_args.model_name_or_path,  # bert-base-uncased
         num_labels=num_labels,
         cache_dir=model_args.cache_dir,
     )
@@ -89,16 +92,22 @@ def main():
         cache_dir=model_args.cache_dir,
     )
 
-    # Get datasets
+    # data_args.train_path é uma lista com o nome de todos os arquivos TSV ou JSON
+    # dentro do train_dir.
+
+    # Get datasets #true
+    print("\n===========  GETTING DATASET ===========")
     if training_args.do_train:
         train_dataset = GroupedTrainDataset(
-            data_args, data_args.train_path, tokenizer=tokenizer, train_args=training_args
-        )
+            args=data_args,
+            path_to_tsv=data_args.train_path,  # é uma lista
+            tokenizer=tokenizer,
+            train_args=training_args)
     else:
         train_dataset = None
 
-
     # Initialize our Trainer
+    print("\n===========  INITIALIZING TRAINER ===========")
     _trainer_class = RerankerDCTrainer if training_args.distance_cache else RerankerTrainer
     trainer = _trainer_class(
         model=model,
@@ -107,8 +116,12 @@ def main():
         data_collator=GroupCollator(tokenizer),
     )
 
+    # ate aqui foi OK
+
     # Training
+
     if training_args.do_train:
+        print("\n===========  TRAINING ===========")
         trainer.train(
             model_path=model_args.model_name_or_path if os.path.isdir(model_args.model_name_or_path) else None
         )
@@ -119,9 +132,11 @@ def main():
             tokenizer.save_pretrained(training_args.output_dir)
 
     if training_args.do_eval:
+        print("\n===========  EVALUATING ===========")
         trainer.evaluate()
 
     if training_args.do_predict:
+        print("\n===========  PREDICTION ===========")
         logging.info("*** Prediction ***")
 
         if os.path.exists(data_args.rank_score_path):
@@ -156,13 +171,14 @@ def main():
             with open(data_args.rank_score_path, "w") as writer:
                 for qid, pid, score in zip(pred_qids, pred_pids, pred_scores):
                     writer.write(f'{qid}\t{pid}\t{score}\n')
+    print("\n===========  TERMINOU ===========")
 
 
 def setup_logging(data_args, model_args, training_args):
     logging.basicConfig(
         format="%(asctime)s - %(levelname)s - %(name)s -   %(message)s",
         datefmt="%m/%d/%Y %H:%M:%S",
-        level=logging.INFO if training_args.local_rank in [-1, 0] else logging.WARNING,
+        level=logging.INFO if training_args.local_rank in [-1, 0] else logging.WARN,
     )
     logger.warning(
         "Process rank: %s, device: %s, n_gpu: %s, distributed training: %s, 16-bits training: %s",

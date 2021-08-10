@@ -216,5 +216,3 @@ class RerankerDCTrainer(RerankerTrainer):
 
         return loss.detach()
 
-
-
