@@ -18,7 +18,7 @@ python examples/msmarco-doc/helpers/build_train_from_ranking.py \
 
 #for i in $(seq -f "%03g" 0 183)
 #do
-#python helpers/build_train_from_ranking.py \
+#python helpers/1_preprocess.py \
 #    --tokenizer_name bert-base-uncased \
 #    --rank_file 	data/hdct-marco-train\${i}.txt \
 #    --json_dir data/training_file \

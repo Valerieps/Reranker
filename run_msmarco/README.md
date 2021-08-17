@@ -28,7 +28,7 @@ qid  pid2  2
 ...
 ```
 Run the script with following command,
-# ======== Estou nesse passo aqui ========
+
 * Tirei o loop e to tentando fazer rodar em apenas 1 txt
 + Acabou o espaço do cache. E tentei no drive
 * Lá eu descobri que eu posso alterar o local da cache e decidi tentar de novo aqui
@@ -120,6 +120,10 @@ python run_marco.py \
   --pred_id_file  {path to prediction id tsv} \
   --rank_score_path {save path of the text file of scores}
 ```
+
+# ======== Estou nesse passo aqui ========
+
+
 Convert score to MS MARCO format. This creates a MS MARCO format score file in the same directory,
 ```
 python {package root}/helpers/score_to_marco.py \
