@@ -20,6 +20,7 @@ for line in lines:
     if len(line.strip()) == 0:
         continue
     qid, did, score = line.strip().split()
+    score = score[1:-1]
     score = float(score)
     all_scores[qid][did] = score
 
