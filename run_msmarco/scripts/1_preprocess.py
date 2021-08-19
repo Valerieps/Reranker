@@ -106,13 +106,13 @@ def main():
 def read_args():
     parser = ArgumentParser()
     parser.add_argument('--tokenizer_name', required=True)              # bert-base-uncased
-    parser.add_argument('--rank_file', required=True)                   # hdct-marco-train txt files
+    parser.add_argument('--rank_file', required=True)                   # 01-hdct-marco-train txt files
     parser.add_argument('--truncate', type=int, default=512)
 
     parser.add_argument('--sample_from_top', type=int, required=True)   # 100
     parser.add_argument('--n_sample', type=int, default=100)            # 10
     parser.add_argument('--random', action='store_true')
-    parser.add_argument('--json_dir', required=True)                    # data/training_file
+    parser.add_argument('--json_dir', required=True)                    # data/03-preprocessed_files_for_training
 
     parser.add_argument('--qrel', required=True)                        # msmarco-doctrain-qrels.tsv
     parser.add_argument('--query_collection', required=True)            # msmarco-doctrain-queries.tsv
@@ -152,7 +152,7 @@ def get_queries_with_relevance_judgment(args, topic_to_relevant_documents):
     """
     high_hdct_rank_no_qrel = defaultdict(list)  # defaultdict never raises a KeyError. If key not present, adds the default value
     no_relevance_judgement = set()
-    with open(args.rank_file) as f:  # hdct-marco-train
+    with open(args.rank_file) as f:  # 01-hdct-marco-train
         for line in f:
             topic_id, doc_id, rank = line.split()
 

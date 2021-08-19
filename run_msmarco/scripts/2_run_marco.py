@@ -24,7 +24,7 @@ from transformers import (
 
 """
 --nproc_per_node 4 examples/msmarco-doc/2_run_marco.py \
---output_dir checkpoints \
+--output_dir model_checkpoints \
 --model_name_or_path  bert-base-uncased \
 --do_train \
 --save_steps 2000 \

@@ -6,9 +6,6 @@ After downloading the data, you can also skip the steps train data building and 
 ## Preparing Data
 
 
-# ?===========? pq hdct e não bm25?
-
-## ======= downloads feitos
 Download 
 * HDCT train rankings and 
 * dev file `hdct-marco-train.zip`, 
@@ -21,7 +18,7 @@ Download the MSMARCO document ranking collection files
 Decompress the latter two.
 
 ## Building Localized Training Data from Target Retriever top Ranking
-Helper script `build_train_from_ranking.py` takes a ranking file and generate training set with localized negatives. It expects a tsv with 3 columns query id, passage/document id and ranking.
+Helper script `1_preprocess.py` takes a ranking file and generate training set with localized negatives. It expects a tsv with 3 columns query id, passage/document id and ranking.
 ```
 qid  pid1  1
 qid  pid2  2
@@ -41,7 +38,7 @@ Run the script with following command,
 mkdir -p {directory to store generated json training file}
 for i in $(seq -f "%03g" 0 183)
 do
-python helpers/build_train_from_ranking.py \ 
+python scripts/prprocess.py \ 
     --tokenizer_name bert-base-uncased \
     --rank_file 	data/hdct-marco-train\${i}.txt \
     --json_dir data/training_file \
@@ -120,9 +117,6 @@ python run_marco.py \
   --pred_id_file  {path to prediction id tsv} \
   --rank_score_path {save path of the text file of scores}
 ```
-
-# ======== Estou nesse passo aqui ========
-
 
 Convert score to MS MARCO format. This creates a MS MARCO format score file in the same directory,
 ```

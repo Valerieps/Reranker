@@ -1,1 +1,2 @@
-/data/
+/run_msmarco/data
+/run_msmarco/model_checkpoints
