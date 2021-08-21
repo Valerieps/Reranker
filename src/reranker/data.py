@@ -136,7 +136,7 @@ class GroupCollator(DataCollatorWithPadding):
     """
     Wrapper that does conversion from List[Tuple[encode_qry, encode_psg]] to List[qry], List[psg]
     and pass batch separately to the actual collator.
-    Abstract out data detail for the model.
+    Abstract out data_train detail for the model.
     """
 
     def __call__(

@@ -29,7 +29,8 @@ reference_file.tsv |
 # Scripts Details
 
 ### 1_preprocess.py
-
+* tokenizes queries and documents
+* 
 
 
 
@@ -69,8 +70,9 @@ DEV.D100.TSV
 519.300 linhas
 
 [query doc seq]
-[queryID?, query(?) docID url title docText]
+[queryID, query_text, docID, url, title, docText, ?]
 
+* 100 documentos mais rlevantes para cada query
 * as queries desse doc não tem nenhuma sobreposição com o atquivo msmarco-queries
 * falta descobrir como isso é usado no Reranker
 * De onde vem essas queries?

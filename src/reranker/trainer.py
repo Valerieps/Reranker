@@ -59,9 +59,9 @@ class RerankerTrainer(Trainer):
 
     def get_train_dataloader(self) -> DataLoader:
         """
-        Returns the training :class:`~torch.utils.data.DataLoader`.
+        Returns the training :class:`~torch.utils.data_train.DataLoader`.
 
-        Will use no sampler if :obj:`self.train_dataset` is a :obj:`torch.utils.data.IterableDataset`, a random sampler
+        Will use no sampler if :obj:`self.train_dataset` is a :obj:`torch.utils.data_train.IterableDataset`, a random sampler
         (adapted to distributed training if necessary) otherwise.
 
         Subclass and override this method if you want to inject some custom behavior.

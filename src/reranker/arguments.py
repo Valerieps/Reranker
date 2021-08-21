@@ -36,13 +36,13 @@ class DataArguments:
         default=None, metadata={"help": "Path to train directory"}
     )
     train_path: Union[str] = field(
-        default=None, metadata={"help": "Path to train data"}
+        default=None, metadata={"help": "Path to train data_train"}
     )
     train_group_size: int = field(default=8)
     dev_path: str = field(
-        default=None, metadata={"help": "Path to dev data"}
+        default=None, metadata={"help": "Path to dev data_train"}
     )
-    pred_path: List[str] = field(default=None, metadata={"help": "Path to prediction data"})
+    pred_path: List[str] = field(default=None, metadata={"help": "Path to prediction data_train"})
     pred_dir: str = field(
         default=None, metadata={"help": "Path to prediction directory"}
     )
