@@ -18,7 +18,7 @@ from tqdm import tqdm
 
 
 def main():
-    # cache_dir="/content/drive/My Drive/_RERANKER_/data"
+    # cache_dir="/content/drive/My Drive/_RERANKER_/data_train"
     # cache_dir = "/cache"
     args = read_args()
 
@@ -112,7 +112,7 @@ def read_args():
     parser.add_argument('--sample_from_top', type=int, required=True)   # 100
     parser.add_argument('--n_sample', type=int, default=100)            # 10
     parser.add_argument('--random', action='store_true')
-    parser.add_argument('--json_dir', required=True)                    # data/03-preprocessed_files_for_training
+    parser.add_argument('--json_dir', required=True)                    # data_train/03-preprocessed_files_for_training
 
     parser.add_argument('--qrel', required=True)                        # msmarco-doctrain-qrels.tsv
     parser.add_argument('--query_collection', required=True)            # msmarco-doctrain-queries.tsv

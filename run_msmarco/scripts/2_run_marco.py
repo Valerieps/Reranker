@@ -28,7 +28,7 @@ from transformers import (
 --model_name_or_path  bert-base-uncased \
 --do_train \
 --save_steps 2000 \
---train_dir data/mini-data/ \
+--train_dir data_train/mini-data_train/ \
 --max_len 512 \
 --fp16 \
 --per_device_train_batch_size 1 \

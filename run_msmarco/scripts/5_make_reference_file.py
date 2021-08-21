@@ -15,7 +15,7 @@ with io.open(path, "r", encoding='utf8') as f:
         new_lines.append(new_line)
 print(len(new_lines))
 
-output = "D:\\DOCUMENTOS\\ufmg\\tcc\\TCC_RERANKER\\data\\reference_file.tsv"
+output = "D:\\DOCUMENTOS\\ufmg\\tcc\\TCC_RERANKER\\data_train\\reference_file.tsv"
 with io.open(output,'w',encoding='utf8') as f:
     for line in new_lines:
         f.write(line)

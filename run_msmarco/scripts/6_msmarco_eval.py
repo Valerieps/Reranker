@@ -51,39 +51,42 @@ def load_reference(path_to_reference):
 
 
 def load_candidate_from_stream(f):
-    """Load candidate data from a stream.
+    """
+    ACHO QUE O ERRO TA AQUI
+
+    Load candidate data_train from a stream.
     Args:f (stream): stream to load.
     Returns:qid_to_ranked_candidate_passages (dict):
     dictionary mapping from query_id (int) to a list of 1000 passage ids(int) ranked by relevance and importance
     """
-    qid_to_ranked_candidate_passages = {}
-    for l in f:
+    query_to_doc_candidate = {}
+    for line in f:
         try:
-            l = l.strip().split('\t')
-            qid = int(l[0])
-            pid = int(l[1][1:])
-            rank = int(l[2])
-            if qid in qid_to_ranked_candidate_passages:
+            line = line.strip().split('\t')
+            qid = int(line[0])
+            pid = int(line[1][1:]) # remove o char 'D' do inicio do documento
+            rank = int(line[2])
+            if qid in query_to_doc_candidate:
                 pass
             else:
                 # By default, all PIDs in the list of 1000 are 0. Only override those that are given
-                tmp = [0] * 1000
-                qid_to_ranked_candidate_passages[qid] = tmp
-            qid_to_ranked_candidate_passages[qid][rank - 1] = pid
+                tmp = [0] * 100
+                query_to_doc_candidate[qid] = tmp
+            query_to_doc_candidate[qid][rank - 1] = pid
         except:
-            raise IOError('\"%s\" is not valid format' % l)
-    return qid_to_ranked_candidate_passages
+            raise IOError('\"%s\" is not valid format' % line)
+    return query_to_doc_candidate
 
 
 def load_candidate(path_to_candidate):
-    """Load candidate data from a file.
+    """Load candidate data_train from a file.
     Args:path_to_candidate (str): path to file to load.
     Returns:qid_to_ranked_candidate_passages (dict): dictionary mapping from query_id (int) to a list of 1000 passage ids(int) ranked by relevance and importance
     """
 
     with open(path_to_candidate, 'r') as f:
-        qid_to_ranked_candidate_passages = load_candidate_from_stream(f)
-    return qid_to_ranked_candidate_passages
+        query_to_doc_candidate = load_candidate_from_stream(f)
+    return query_to_doc_candidate
 
 
 def quality_checks_qids(qids_to_relevant_passageids, qids_to_ranked_candidate_passages):
@@ -117,7 +120,7 @@ def quality_checks_qids(qids_to_relevant_passageids, qids_to_ranked_candidate_pa
     return allowed, message
 
 
-def compute_metrics(qids_to_relevant_passageids, qids_to_ranked_candidate_passages):
+def compute_metrics(query_to_doc_ground_truth, query_to_docs_candiadte):
     """Compute MRR metric
     Args:
     p_qids_to_relevant_passageids (dict): dictionary of query-passage mapping
@@ -126,27 +129,45 @@ def compute_metrics(qids_to_relevant_passageids, qids_to_ranked_candidate_passag
     Returns:
         dict: dictionary of metrics {'MRR': <MRR Score>}
     """
+    print("inside compute metrics")
+    # print(query_to_doc_ground_truth)
+    # print(len(query_to_doc_ground_truth[174249]))
+    print(query_to_docs_candiadte)
+
     all_scores = {}
-    MRR = 0
+    total_MRR = 0
     qids_with_relevant_passages = 0
     ranking = []
-    for qid in qids_to_ranked_candidate_passages:
-        if qid in qids_to_relevant_passageids:
+    for query_id in query_to_docs_candiadte:
+        if query_id in query_to_doc_ground_truth:
             ranking.append(0)
-            target_pid = qids_to_relevant_passageids[qid]
-            candidate_pid = qids_to_ranked_candidate_passages[qid]
-            for i in range(0, MaxMRRRank):
-                if candidate_pid[i] in target_pid:
-                    MRR += 1 / (i + 1)
-                    ranking.pop()
-                    ranking.append(i + 1)
-                    break
+
+            # Resgata a lista de documentos corretos
+            ordered_docs_ground_truth = query_to_doc_ground_truth[query_id]
+
+            # Resgata a lista de documentos candidatos
+            ordered_docs_candidate = query_to_docs_candiadte[query_id]
+
+            #
+            for idx in range(0, MaxMRRRank): # 0 a 9
+                probable_relevant_doc = ordered_docs_candidate[idx]
+                print(f"checking doc {probable_relevant_doc}")
+                if probable_relevant_doc in ordered_docs_ground_truth:
+                    real_position = ordered_docs_ground_truth.index(probable_relevant_doc) + 1
+                    print(f"Doc {probable_relevant_doc} is in position {real_position}")
+                    if real_position <= 10:
+                        this_MRR = 1 / real_position
+                        print(this_MRR)
+                        ranking.pop()
+                        ranking.append(idx)
+                        break
+                # print(f"MRR parcial: {this_MRR}")
     if len(ranking) == 0:
         raise IOError("No matching QIDs found. Are you sure you are scoring the evaluation set?")
 
-    MRR = MRR / len(qids_to_relevant_passageids)
+    MRR = total_MRR / len(query_to_doc_ground_truth)
     all_scores['MRR @10'] = MRR
-    all_scores['QueriesRanked'] = len(qids_to_ranked_candidate_passages)
+    all_scores['QueriesRanked'] = len(query_to_docs_candiadte)
     return all_scores
 
 
@@ -167,13 +188,13 @@ def compute_metrics_from_files(path_to_reference, path_to_candidate, perform_che
         dict: dictionary of metrics {'MRR': <MRR Score>}
     """
 
-    qids_to_relevant_passageids = load_reference(path_to_reference)
-    qids_to_ranked_candidate_passages = load_candidate(path_to_candidate)
+    query_to_doc_ground_truth = load_reference(path_to_reference)
+    query_to_doc_candidate = load_candidate(path_to_candidate)
     if perform_checks:
-        allowed, message = quality_checks_qids(qids_to_relevant_passageids, qids_to_ranked_candidate_passages)
+        allowed, message = quality_checks_qids(query_to_doc_ground_truth, query_to_doc_candidate)
         if message != '': print(message)
 
-    return compute_metrics(qids_to_relevant_passageids, qids_to_ranked_candidate_passages)
+    return compute_metrics(query_to_doc_ground_truth, query_to_doc_candidate)
 
 
 def main():
