@@ -134,13 +134,20 @@ def compute_metrics(qids_to_relevant_documentids, qids_to_ranked_candidate_docum
     qids_with_relevant_documents = 0
     ranking = []
 
-    for qid in qids_to_ranked_candidate_documents:
-        if qid in qids_to_relevant_documentids and qid not in exclude_qids:
-            ranking.append(0)
-            target_pid = qids_to_relevant_documentids[qid]
-            candidate_pid = qids_to_ranked_candidate_documents[qid]
-            for i in range(0, len(candidate_pid)):
-                if candidate_pid[i][0] in target_pid:
+    for query_id in qids_to_ranked_candidate_documents:
+        if query_id in qids_to_relevant_documentids and query_id not in exclude_qids:
+            ranking.append(0)                                            # append um 0 num lista aí
+            list_of_docs_reference = qids_to_relevant_documentids[query_id]          # busca a lista de docs relevantes no reference
+            list_of_docs_candidate = qids_to_ranked_candidate_documents[query_id] #
+            print()
+            print(list_of_docs_candidate) # lista de tuplas (doc, pos)
+            print(list_of_docs_reference)
+            print()
+
+            for i in range(0, len(list_of_docs_candidate)): # loop de busca na lista candidata
+                doc_to_be_searched = list_of_docs_candidate[i][0]
+                if doc_to_be_searched in list_of_docs_reference:
+                    print(f"Found doc n.{doc_to_be_searched} inside reference file")
                     MRR += 1 / (i + 1)
                     ranking.pop()
                     ranking.append(i + 1)
@@ -205,19 +212,12 @@ def main():
     python document_ranking.py <path_to_candidate_file> <path_to_reference_file> <queries_to_exclude>
     """
 
-    if len(sys.argv) < 3:
-        print("Usage:  document_ranking.py <path_to_candidate_file> <path_to_reference_file> <queries_to_exclude>") #for public version
+    if len(sys.argv) != 4:
+        print("Usage:  document_ranking.py <path_to_candidate_file> <path_to_reference_file> <queries_to_exclude>")
     else:
-        if len(sys.argv) == 4:
-            exclude_qids = set()
-        elif len(sys.argv) == 1:
-            exclude_qids = load_exclude(sys.argv[3])  # Public implementation
-
-        # exclude_qids = load_exclude('exclude/')
+        exclude_qids = load_exclude(sys.argv[3])  # Public implementation
         path_to_candidate = sys.argv[1]
         path_to_reference = sys.argv[2]
-
-
         metrics = compute_metrics_from_files(path_to_reference, path_to_candidate, exclude_qids)
         print('#####################')
         for metric in sorted(metrics):
